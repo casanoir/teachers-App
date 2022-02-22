@@ -14,9 +14,22 @@ $street_nr = $_POST['street_nr'];
 $code_city = $_POST['code_city'];
 $bio = $_POST['bio'];
 
-$query = "INSERT INTO `teachers` (`firstName`, `lastName`, `email`, `website`, `tel`, `companyName`, `street_nr`, `code_city`, `bio`) VALUES
-('firstName', 'lastName', 'email', 'website', 'tel', 'companyName', 'street_nr', 'code_city', 'bio');";
+$query = "SELECT * FROM teachers WHERE email = '$email'";
 $result = mysqli_query($conn, $query);
+// Also perfectly possible using the mysqli_num_rows() function on the $result - a fetch assoc is not needed in this case...
+// count() very usefull -> but not with assoc arrays... only ['one','two','three']
+
+if(mysqli_num_rows($result) == 0) {
+    $query = "INSERT INTO `teachers` (`firstName`, `lastName`, `email`, `website`, `tel`, `companyName`, `street_nr`, `code_city`, `approved`, `bio`) VALUES ('$firstName', '$lastName', '$email', '$website', '$tel', '$companyName', '$street_nr', '$code_city', 0, '$bio')";
+
+    $result = mysqli_query($conn, $query);
+    $ok = 1;
+
+    // SHOULDHAVE: Send out an e-mail
+
+} else {
+    $ok = 0;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,16 +43,30 @@ $result = mysqli_query($conn, $query);
 </head>
 <body>
     <div class="container">
-            <div class="row">
-                <div class="col">
-                    <img src="assets/logo.svg" class="img-fluid mt-5 mb-3" width="150px">
-                    <h1>Bedankt<span class="docent"> Docent</span></h1>
+        <div class="row">
+            <div class="col">
+                 <img src="assets/logo.svg" class="img-fluid mt-5 mb-3" width="150px">
+
+                 <?php if ($ok == 1) { ?>
+                    
+                    <h1>Bedankt</h1>
                     <div class="thanakyou">
-                    We hebben uw gegevens goed ontvangen, zodra u bent goedgekeurd zal u zichtbaar zijn op onze website...Het SyntraPXL team!
+                        We hebben uw gegevens goed ontvangen, zodra u bent goedgekeurd zal u zichtbaar zijn op onze website...Het SyntraPXL team!
                     </div>
-                
-                </div>
+                    
+                 <?php } ?>
+
+                 <?php if ($ok == 0) { ?> 
+                    
+                    <h1>Oeps...</h1>
+                    <div class="thankyou">
+                        Uw e-mail adres werd reeds gebruikt en is aanwezig in onze database...
+                    </div>
+
+                 <?php } ?>
+
             </div>
         </div>
+    </div>
 </body>
 </html>
